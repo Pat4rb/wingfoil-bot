@@ -1,6 +1,26 @@
+import os
+import requests
+
 from spots import SPOTS
 from weather import get_weather
 from scoring import calculate_score
+
+
+def send_telegram(message):
+
+    token = os.environ["TELEGRAM_TOKEN"]
+    chat_id = os.environ["TELEGRAM_CHAT_ID"]
+
+    url = (
+        f"https://api.telegram.org/bot{token}/sendMessage"
+    )
+
+    data = {
+        "chat_id": chat_id,
+        "text": message
+    }
+
+    requests.post(url, data=data)
 
 
 def run():
@@ -26,23 +46,45 @@ def run():
             }
         )
 
+
     results.sort(
         key=lambda x: x["score"],
         reverse=True
     )
 
-    print("🏄 Wingfoil Forecast\n")
+
+    best = results[0]
+
+
+    message = f"""
+🏄 Wingfoil Forecast Allgäu
+
+🥇 Beste Option:
+{best['spot']}
+
+Score:
+{best['score']}/100
+
+Zeit:
+{best['hour']}
+
+Wind:
+{best['wind']} km/h {best['direction']}
+
+
+Alle Spots:
+"""
+
 
     for r in results:
 
-        print(
-            f"""
-{r['spot']}
-Score: {r['score']}/100
-Zeit: {r['hour']}
-Wind: {r['wind']} km/h {r['direction']}
-"""
+        message += (
+            f"\n{r['spot']}: "
+            f"{r['score']}/100"
         )
+
+
+    send_telegram(message)
 
 
 if __name__ == "__main__":
