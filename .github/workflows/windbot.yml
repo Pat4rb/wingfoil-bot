@@ -1,0 +1,30 @@
+name: Wingfoil Forecast
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+
+  workflow_dispatch:
+
+jobs:
+  forecast:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Code herunterladen
+      uses: actions/checkout@v4
+
+    - name: Python starten
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+
+    - name: Pakete installieren
+      run: |
+        pip install -r requirements.txt
+
+    - name: Forecast ausführen
+      run: |
+        python main.py
